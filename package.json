@@ -1,0 +1,21 @@
+{
+  "name": "cicd-demo-app",
+  "version": "1.0.0",
+  "description": "Simple login demo app used as the base for the Jenkins CI/CD pipeline (Git -> Jenkins -> Docker -> ArgoCD -> Kubernetes)",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "jest --detectOpenHandles --forceExit"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

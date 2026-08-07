@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Register</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="card">
+    <h1>Create account</h1>
+    <form id="register-form">
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" />
+
+      <button type="submit">Register</button>
+    </form>
+    <div id="msg" class="msg"></div>
+    <div class="footer-link">Already have an account? <a href="/login.html">Log in</a></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+      msg.className = 'msg';
+
+      const username = form.username.value.trim();
+      const password = form.password.value;
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.error || 'Registration failed';
+          msg.classList.add('error');
+          return;
+        }
+
+        msg.textContent = 'Account created. Redirecting to login...';
+        msg.classList.add('success');
+        setTimeout(() => (window.location.href = '/login.html'), 1000);
+      } catch (err) {
+        msg.textContent = 'Network error';
+        msg.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>

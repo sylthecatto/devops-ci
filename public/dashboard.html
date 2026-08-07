@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="card">
+    <h1>Welcome</h1>
+    <p id="welcome" style="text-align:center; color:#94a3b8;">Loading...</p>
+    <p id="meta" style="text-align:center; color:#475569; font-size:0.75rem;"></p>
+    <button id="logout">Log out</button>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <script>
+    const welcome = document.getElementById('welcome');
+    const meta = document.getElementById('meta');
+    const msg = document.getElementById('msg');
+
+    (async () => {
+      const res = await fetch('/api/me');
+      if (!res.ok) {
+        window.location.href = '/login.html';
+        return;
+      }
+      const data = await res.json();
+      welcome.textContent = `Logged in as ${data.user.username}`;
+    })();
+
+    (async () => {
+      const res = await fetch('/api/meta');
+      if (!res.ok) return;
+      const data = await res.json();
+      meta.textContent = `build ${data.buildVersion} · ${data.environment} · ${data.hostname}`;
+    })();
+
+    document.getElementById('logout').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+  </script>
+</body>
+</html>
