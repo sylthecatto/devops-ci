@@ -28,7 +28,7 @@ app.get('/health', (req, res) => {
 // app can be visually confirmed as the right image on the right environment.
 app.get('/api/meta', (req, res) => {
   res.json({
-    buildVersion: process.env.BUILD_VERSION || 'dev',
+    buildVersion: process.env.APP_VERSION || 'unknown',
     environment: process.env.ENVIRONMENT || 'local',
     hostname: process.env.HOSTNAME || os.hostname(),
   });
