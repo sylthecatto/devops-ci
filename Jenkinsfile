@@ -6,7 +6,7 @@ pipeline {
         // CONFIGURATION VARIABLES
         // ==========================================
         // The network IP:port of your Docker registry, loaded securely from Jenkins credentials
-        REGISTRY = credentials('private-registry-ip')
+        REGISTRY = credentials('registry-url')
 
         // The application name
         APP_NAME = 'cicd-demo-app'
