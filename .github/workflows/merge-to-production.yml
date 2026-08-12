@@ -1,0 +1,34 @@
+name: Merge Staging to Production on Version Tag
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  merge-to-production:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge staging into production
+        run: |
+          git fetch origin
+          git checkout production
+          git merge --no-ff origin/staging -m "chore: merge staging into production for release ${{ github.ref_name }}"
+          git push origin production
+
+      - name: Notify Jenkins
+        run: |
+          echo "Jenkins will automatically detect the tag push and build from production branch"
