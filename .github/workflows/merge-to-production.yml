@@ -34,19 +34,19 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Check for release marker
+      - name: Check for tag marker
         id: detect-release
         run: |
           LAST_MSG=$(git log -1 --pretty=%B)
 
-          if [[ $LAST_MSG =~ \[release:\ v([0-9]+\.[0-9]+\.[0-9]+)\] ]]; then
+          if [[ $LAST_MSG =~ \[tag:\ v([0-9]+\.[0-9]+\.[0-9]+)\] ]]; then
             VERSION="v${BASH_REMATCH[1]}"
             echo "should-release=true" >> $GITHUB_OUTPUT
             echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "✅ Tests passed. Release marker found: $VERSION"
+            echo "✅ Tests passed. Tag marker found: $VERSION"
           else
             echo "should-release=false" >> $GITHUB_OUTPUT
-            echo "✅ Tests passed. Staging-only update (no release marker)"
+            echo "✅ Tests passed. Staging-only update (no tag marker)"
           fi
 
   # ========================================
