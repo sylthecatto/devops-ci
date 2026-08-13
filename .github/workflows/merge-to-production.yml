@@ -75,9 +75,23 @@ jobs:
         env:
           VERSION: ${{ needs.test-staging.outputs.version }}
         run: |
-          git tag -a $VERSION -m "Release $VERSION"
-          git push origin $VERSION
-          echo "✅ Tag $VERSION created and pushed"
+          # Check if tag already exists
+          if git rev-parse $VERSION >/dev/null 2>&1; then
+            echo "⚠️  Tag $VERSION already exists locally, skipping creation"
+          else
+            git tag -a $VERSION -m "Release $VERSION"
+            git push origin $VERSION
+            echo "✅ Tag $VERSION created and pushed"
+          fi
+
+          # Verify tag exists on remote
+          git fetch origin --tags
+          if git rev-parse origin/$VERSION >/dev/null 2>&1; then
+            echo "✅ Tag $VERSION verified on GitHub"
+          else
+            echo "❌ Tag $VERSION not found on GitHub"
+            exit 1
+          fi
 
   # ========================================
   # STAGE 3: Merge to Production After Tag
