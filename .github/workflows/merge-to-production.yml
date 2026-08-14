@@ -75,18 +75,17 @@ jobs:
         env:
           VERSION: ${{ needs.test-staging.outputs.version }}
         run: |
-          # Check if tag already exists
-          if git rev-parse $VERSION >/dev/null 2>&1; then
-            echo "⚠️  Tag $VERSION already exists locally, skipping creation"
+          # Check if tag already exists on the remote (authoritative)
+          if git ls-remote --exit-code --tags origin "$VERSION" >/dev/null 2>&1; then
+            echo "⚠️  Tag $VERSION already exists on GitHub, skipping creation"
           else
-            git tag -a $VERSION -m "Release $VERSION"
-            git push origin $VERSION
+            git tag -a "$VERSION" -m "Release $VERSION"
+            git push origin "$VERSION"
             echo "✅ Tag $VERSION created and pushed"
           fi
 
           # Verify tag exists on remote
-          git fetch origin --tags
-          if git rev-parse origin/$VERSION >/dev/null 2>&1; then
+          if git ls-remote --exit-code --tags origin "$VERSION" >/dev/null 2>&1; then
             echo "✅ Tag $VERSION verified on GitHub"
           else
             echo "❌ Tag $VERSION not found on GitHub"
