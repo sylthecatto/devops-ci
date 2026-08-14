@@ -4,6 +4,7 @@ const os = require('os');
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 
 const authRoutes = require('./routes/auth');
 const db = require('./db');
@@ -11,8 +12,16 @@ const db = require('./db');
 const app = express();
 
 app.use(express.json());
+
+// Sessions are stored in Postgres, not in process memory. With more than one
+// replica behind the Service, a login handled by one pod must stay valid on
+// requests the load balancer sends to any other pod.
 app.use(
   session({
+    store: new pgSession({
+      pool: db.pool,
+      tableName: 'user_sessions',
+    }),
     secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
