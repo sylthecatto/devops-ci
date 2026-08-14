@@ -4,6 +4,7 @@ const os = require('os');
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 
 const authRoutes = require('./routes/auth');
 const db = require('./db');
@@ -11,14 +12,24 @@ const db = require('./db');
 const app = express();
 
 app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 },
-  })
-);
+
+// Sessions live in Postgres, not in process memory. The app runs with more
+// than one replica behind a single Service, so a login handled by one pod
+// must stay valid on requests the load balancer sends to any other pod.
+// Tests run in a single process against a mocked db, so they use the
+// in-memory default instead of reaching for a real connection pool.
+const sessionOptions = {
+  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 },
+};
+
+if (db.pool) {
+  sessionOptions.store = new pgSession({ pool: db.pool, tableName: 'user_sessions' });
+}
+
+app.use(session(sessionOptions));
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });

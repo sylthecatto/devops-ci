@@ -13,6 +13,18 @@ async function init() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);
+
+  // Schema required by connect-pg-simple for the shared session store.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      sid VARCHAR NOT NULL PRIMARY KEY,
+      sess JSON NOT NULL,
+      expire TIMESTAMP(6) NOT NULL
+    )
+  `);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_user_sessions_expire ON user_sessions (expire)`
+  );
 }
 
 module.exports = {
